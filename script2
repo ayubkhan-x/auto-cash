@@ -1,0 +1,21 @@
+(function () {
+  setInterval(() => {
+    const modals = document.querySelectorAll('.payment-method-form');
+
+    modals.forEach(modal => {
+      const input = modal.querySelector('input[name="cash"]');
+      const amountElement = modal.querySelector('header .HeadlineMBold');
+
+      if (!input || !amountElement || input.dataset.autoFilled === 'true') return;
+
+      const amountText = amountElement.textContent.replace(/\s/g, '').replace('\u00A0', '');
+
+      input.value = amountText;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+
+      input.dataset.autoFilled = 'true';
+
+      console.log('[✔️] Вставлена сумма в поле: ' + amountText);
+    });
+  }, 500);
+})();
