@@ -1,0 +1,71 @@
+// ==UserScript==
+// @name         Uzum Автозаполнение суммы
+// @namespace    http://tampermonkey.net/
+// @version      0.3
+// @description  Автозаполнение суммы платежа для dp.uzum.uz
+// @author       ayub
+// @match        https://dp.uzum.uz/*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    let scriptActive = false;
+    
+    function log(message) {
+        console.log(%c[Uzum AutoCash] ${message}, 
+                    'color: #fff; background: #2ecc71; padding: 2px 5px; border-radius: 3px;');
+    }
+
+    function initScript() {
+        if (scriptActive) return;
+        
+        const checkInterval = setInterval(() => {
+            const modals = document.querySelectorAll('.payment-method-form');
+            
+            if (modals.length > 0) {
+                scriptActive = true;
+                clearInterval(checkInterval);
+                log('Скрипт активирован! Найден платежный интерфейс');
+                startAutoFill();
+            }
+        }, 1000);
+    }
+
+    function startAutoFill() {
+        setInterval(() => {
+            document.querySelectorAll('.payment-method-form').forEach(modal => {
+                const input = modal.querySelector('input[name="cash"]');
+                const amountElement = modal.querySelector('header .HeadlineMBold');
+
+                if (!input  !amountElement  input.dataset.autoFilled) return;
+
+                const amountText = amountElement.textContent
+                    .replace(/[\s\u00A0]/g, '')
+                    .trim();
+
+                if (!/^\d+$/.test(amountText)) {
+                    log(Ошибка: некорректная сумма - ${amountText});
+                    return;
+                }
+
+                input.value = amountText;
+                input.dispatchEvent(new Event('input', { 
+                    bubbles: true,
+                    composed: true 
+                }));
+
+                input.dataset.autoFilled = 'true';
+                log(Успешно: ${amountText} сум введен);
+            });
+        }, 500);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initScript);
+    } else {
+        initScript();
+    }
+})();
