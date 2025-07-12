@@ -13,18 +13,18 @@
     'use strict';
 
     let scriptActive = false;
-    
+
     function log(message) {
-        console.log(%c[Uzum AutoCash] ${message}, 
+        console.log(`%c[Uzum AutoCash] ${message}`,
                     'color: #fff; background: #2ecc71; padding: 2px 5px; border-radius: 3px;');
     }
 
     function initScript() {
         if (scriptActive) return;
-        
+
         const checkInterval = setInterval(() => {
             const modals = document.querySelectorAll('.payment-method-form');
-            
+
             if (modals.length > 0) {
                 scriptActive = true;
                 clearInterval(checkInterval);
@@ -40,25 +40,25 @@
                 const input = modal.querySelector('input[name="cash"]');
                 const amountElement = modal.querySelector('header .HeadlineMBold');
 
-                if (!input  !amountElement  input.dataset.autoFilled) return;
+                if (!input || !amountElement || input.dataset.autoFilled) return;
 
                 const amountText = amountElement.textContent
                     .replace(/[\s\u00A0]/g, '')
                     .trim();
 
                 if (!/^\d+$/.test(amountText)) {
-                    log(Ошибка: некорректная сумма - ${amountText});
+                    log(`Ошибка: некорректная сумма - ${amountText}`);
                     return;
                 }
 
                 input.value = amountText;
-                input.dispatchEvent(new Event('input', { 
+                input.dispatchEvent(new Event('input', {
                     bubbles: true,
-                    composed: true 
+                    composed: true
                 }));
 
                 input.dataset.autoFilled = 'true';
-                log(Успешно: ${amountText} сум введен);
+                log(`Успешно: ${amountText} сум введен`);
             });
         }, 500);
     }
